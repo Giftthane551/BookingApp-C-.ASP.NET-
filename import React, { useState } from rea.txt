@@ -1,0 +1,225 @@
+import React, { useState } from "react";
+import "./BookingForm.css";
+
+const BookingForm = () => {
+  const [accountType, setAccountType] = useState("");
+  const [patientInfo, setPatientInfo] = useState("");
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    medicalAid: "",
+    medicalAidOption: "",
+    membershipNumber: "",
+    contactDetails: "",
+    alternativeNumber: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Prepare the data payload
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      accountType: accountType,
+      medicalAid: accountType === "Medical Aid" ? formData.medicalAid : null,
+      medicalAidOption: accountType === "Medical Aid" ? formData.medicalAidOption : null,
+      membershipNumber: accountType === "Medical Aid" ? formData.membershipNumber : null,
+      contactDetails: formData.contactDetails,
+      alternativeNumber: formData.alternativeNumber,
+      patientInfo: patientInfo,
+    };
+
+    try {
+      const response = await fetch("https://localhost:7194/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert("Form submitted successfully: " + JSON.stringify(result));
+      } else {
+        alert("Failed to submit the form. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting the form:", error);
+      alert("An error occurred while submitting the form.");
+    }
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <h1>Make Appointment</h1>
+
+        {/* Basic Information */}
+        <div className="field-group">
+          <label>First Name:</label>
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            placeholder="Enter your first name"
+            required
+          />
+        </div>
+        <div className="field-group">
+          <label>Last Name:</label>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            placeholder="Enter your last name"
+            required
+          />
+        </div>
+        <div className="field-group">
+          <label>Email Address:</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        {/* Account Type */}
+        <fieldset>
+          <legend>Account Type:</legend>
+          <div>
+            <label>
+              <input
+                type="radio"
+                name="accountType"
+                value="Medical Aid"
+                onChange={(e) => setAccountType(e.target.value)}
+                required
+              />
+              Medical Aid
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="accountType"
+                value="Private"
+                onChange={(e) => setAccountType(e.target.value)}
+              />
+              Private
+            </label>
+          </div>
+        </fieldset>
+
+        {/* Conditional Fields for Medical Aid */}
+        {accountType === "Medical Aid" && (
+          <div>
+            <div className="field-group">
+              <label>Medical Aid:</label>
+              <input
+                type="text"
+                name="medicalAid"
+                value={formData.medicalAid}
+                onChange={handleChange}
+                placeholder="Enter Medical Aid details"
+                required
+              />
+            </div>
+            <div className="field-group">
+              <label>Medical Aid Option:</label>
+              <input
+                type="text"
+                name="medicalAidOption"
+                value={formData.medicalAidOption}
+                onChange={handleChange}
+                placeholder="Enter Medical Aid option"
+                required
+              />
+            </div>
+            <div className="field-group">
+              <label>Membership Number:</label>
+              <input
+                type="text"
+                name="membershipNumber"
+                value={formData.membershipNumber}
+                onChange={handleChange}
+                placeholder="Enter Membership number"
+                required
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Contact Details */}
+        <div className="field-group">
+          <label>Contact Details:</label>
+          <input
+            type="text"
+            name="contactDetails"
+            value={formData.contactDetails}
+            onChange={handleChange}
+            placeholder="Enter contact details"
+            required
+          />
+        </div>
+        <div className="field-group">
+          <label>Alternative Number:</label>
+          <input
+            type="text"
+            name="alternativeNumber"
+            value={formData.alternativeNumber}
+            onChange={handleChange}
+            placeholder="Enter an alternative number"
+            required
+          />
+        </div>
+
+        {/* Patient Info */}
+        <fieldset>
+          <legend>Patient Info:</legend>
+          <div>
+            <label>
+              <input
+                type="radio"
+                name="patientInfo"
+                value="New"
+                onChange={(e) => setPatientInfo(e.target.value)}
+                required
+              />
+              New Patient
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="patientInfo"
+                value="Follow-up"
+                onChange={(e) => setPatientInfo(e.target.value)}
+              />
+              Follow-up Patient
+            </label>
+          </div>
+        </fieldset>
+
+        {/* Submit Button */}
+        <div>
+          <button type="submit">Book Now</button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default BookingForm;
